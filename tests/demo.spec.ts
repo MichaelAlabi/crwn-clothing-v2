@@ -7,4 +7,5 @@ test('test', async ({ page }) => {
   await page.getByText('SneakersShop Now').click();
   await page.getByText('WomensShop Now').click();
   await page.getByRole('heading', { name: 'Mens', exact: true }).click();
+  console.log('test');
 });
