@@ -1,9 +1,9 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [ my-main-branch ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ my-main-branch ]
 
 jobs:
   build:
@@ -27,9 +27,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Start static server (for tests)
-        run: npx http-server public -p 3000 &
-      - name: Wait for server
-        run: npx wait-on http://localhost:3000
+        run: npm run start & npx wait-on http://localhost:3000
       - name: Run Playwright tests
         run: npx playwright test
       - name: Upload Playwright report
@@ -44,11 +42,11 @@ jobs:
     name: Deploy to Vercel
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/my-main-branch'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Use Node.js 24
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -58,12 +56,11 @@ jobs:
         run: npm run build || echo "no build step"
       - name: Deploy to Vercel (CLI)
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_OIDC_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           npm install -g vercel@latest
-          # optional: link to project once locally, otherwise pass org/project ids
           if [ -n "$VERCEL_PROJECT_ID" ] && [ -n "$VERCEL_ORG_ID" ]; then
             vercel --prod --token "$VERCEL_TOKEN" --confirm --org "$VERCEL_ORG_ID" --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID"
           else
