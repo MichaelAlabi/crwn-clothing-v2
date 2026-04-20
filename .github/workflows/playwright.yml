@@ -43,6 +43,11 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/my-main-branch'
+    # Defining env here makes them available to all steps in this job
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,19 +55,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Install deps (for build)
-        run: npm ci
-      - name: Build
-        run: npm run build || echo "no build step"
-      - name: Deploy to Vercel (CLI)
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          npm install -g vercel@latest
-          if [ -n "$VERCEL_PROJECT_ID" ] && [ -n "$VERCEL_ORG_ID" ]; then
-            vercel --prod --token "$VERCEL_TOKEN" --confirm --org "$VERCEL_ORG_ID" --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID"
-          else
-            vercel --prod --token "$VERCEL_TOKEN" --confirm
-          fi
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+      - name: Deploy to Vercel
+        # No flags needed; Vercel reads the env variables automatically
+        run: vercel --prod --confirm
+
+  
