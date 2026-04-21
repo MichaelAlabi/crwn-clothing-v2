@@ -1,9 +1,9 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ my-main-branch ]
+    branches: [ main-lesson-1 ]
   pull_request:
-    branches: [ my-main-branch ]
+    branches: [ main-lesson-1 ]
 
 jobs:
   build:
@@ -42,7 +42,7 @@ jobs:
     name: Deploy to Vercel
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/my-main-branch'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main-lesson-1'
     # Defining env here makes them available to all steps in this job
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
