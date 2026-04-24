@@ -27,7 +27,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Start static server (for tests)
-        run: npm run start & npx wait-on http://localhost:3000
+        run: npm run start & npx wait-on APP_URL
       - name: Run Playwright tests
         run: npx playwright test
       - name: Upload Playwright report
@@ -48,6 +48,7 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      APP_URL: ${{ secrets.APP_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
