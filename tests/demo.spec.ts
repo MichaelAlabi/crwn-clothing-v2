@@ -7,5 +7,5 @@ test('test', async ({ page }) => {
   await expect(page.getByText('SneakersShop Now')).toBeVisible();
   await expect(page.getByText('WomensShop Now')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Mens', exact: true })).toBeVisible();
-  console.log('test');
+  console.log('all categories are visible');
 });
