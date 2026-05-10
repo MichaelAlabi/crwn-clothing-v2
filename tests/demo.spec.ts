@@ -2,10 +2,10 @@ import { test, expect } from "@playwright/test";
 
 test('test', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('heading', { name: 'Hats' }).click();
-  await page.getByRole('heading', { name: 'Jackets' }).click();
-  await page.getByText('SneakersShop Now').click();
-  await page.getByText('WomensShop Now').click();
-  await page.getByRole('heading', { name: 'Mens', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Hats' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Jackets' })).toBeVisible();
+  await expect(page.getByText('SneakersShop Now')).toBeVisible();
+  await expect(page.getByText('WomensShop Now')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Mens', exact: true })).toBeVisible();
   console.log('test');
 });
