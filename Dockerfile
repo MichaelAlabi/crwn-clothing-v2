@@ -1,40 +1,14 @@
-# Stage 1: Build stage
-FROM node:18-alpine AS builder
-
+# Use a Node.js base image with Playwright
+FROM mcr.microsoft.com/playwright:v1.37.0-focal
+# Set working directory inside the container
 WORKDIR /app
-
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json for dependency installation
 COPY package*.json ./
-
-# Install dependencies
+# Install the project dependencies
 RUN npm install
-
 # Copy the entire project
-COPY . .
-
-# Build the React app for production
-RUN npm run build
-
-# Stage 2: Production stage
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Install serve to run the app in production
-RUN npm install -g serve
-
-# Copy built app from builder stage
-COPY --from=builder /app/build ./build
-
-# Copy package.json for reference
-COPY package.json ./
-
-# Expose port 8000
-EXPOSE 8000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-# Start the app
-CMD ["serve", "-s", "build", "-l", "3000"]
+COPY . .do
+# Install Playwright browsers (chromium, firefox, webkit)
+RUN npx playwright install
+# Default command to run tests
+CMD ["npx", "playwright", "test"]
