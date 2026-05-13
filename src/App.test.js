@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders category headings', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Hats' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Jackets & Sweaters' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Sneakers' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Womens' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Mens' })).toBeInTheDocument();
 });

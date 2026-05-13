@@ -6,30 +6,55 @@ on:
     branches: [ my-main-branch ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
   test:
-    needs: build
     timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Run unit tests
+        run: npm test -- --watchAll=false --runInBand
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      - name: Start static server (for tests)
-        run: npm run start & npx wait-on APP_URL
+
+      - name: Build production app
+        run: npm run build
+
+      - name: Start static server for tests
+        run: npx serve -s build -l 3000 &
+
+      - name: Wait for local server
+        run: npx wait-on http://localhost:3000
+
       - name: Run Playwright tests
         run: npx playwright test
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -43,7 +68,6 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/my-main-branch'
-    # Defining env here makes them available to all steps in this job
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -59,7 +83,5 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
       - name: Deploy to Vercel
-        # No flags needed; Vercel reads the env variables automatically
         run: vercel --prod --confirm
-
   
