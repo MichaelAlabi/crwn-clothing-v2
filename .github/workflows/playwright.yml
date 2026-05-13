@@ -3,14 +3,12 @@ on:
   push:
     branches: [ my-main-branch ]
   pull_request:
-    branches: [ my-main-branch ]
+    branches: [ my-main-branch]
 
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
